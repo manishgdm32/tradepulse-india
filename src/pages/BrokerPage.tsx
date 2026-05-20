@@ -1,160 +1,235 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, RefreshCw, Shield, Zap } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, ExternalLink, Shield, Zap, Plus, Link2, Loader2 } from 'lucide-react';
 import './BrokerPage.css';
 
 interface Broker {
   id: string;
   name: string;
   logo: string;
-  status: 'connected' | 'disconnected';
+  color: string;
+  status: 'connected' | 'disconnected' | 'connecting';
   accountType: string;
-  margins: { available: number; used: number };
+  margins: { available: number; used: number; total: number };
   lastSync: Date;
+  apiKey?: string;
 }
 
-const brokers: Broker[] = [
-  { id: 'kite', name: 'Zerodha Kite', logo: 'K', status: 'connected', accountType: 'Equity + F&O', margins: { available: 245680, used: 125000 }, lastSync: new Date(Date.now() - 5 * 60000) },
-  { id: 'upstox', name: 'Upstox Pro', logo: 'U', status: 'connected', accountType: 'Equity', margins: { available: 125000, used: 45000 }, lastSync: new Date(Date.now() - 10 * 60000) },
+const allBrokers = [
+  { id: 'kite', name: 'Zerodha Kite', logo: 'K', color: '#5861c7', description: 'Industry leading platform with fastest execution', features: ['Low latency', 'Advanced charting', 'Multi-device sync'] },
+  { id: 'upstox', name: 'Upstox Pro', logo: 'U', color: '#00a651', description: 'Powerful trading with affordable brokerage', features: ['Zero AMC', 'GTT Orders', 'Basket Orders'] },
+  { id: 'angel', name: 'Angel One', logo: 'A', color: '#ff6b35', description: 'Smart trading with AI-powered insights', features: ['SmartAPI', 'Algo Trading', 'Portfolio Analysis'] },
+  { id: 'icici', name: 'ICICI Securities', logo: 'IC', color: '#00529b', description: 'Trusted platform from ICICI Bank', features: ['3-in-1 Account', 'Research Reports', 'Instant Margin'] },
+  { id: 'hdfc', name: 'HDFC Securities', logo: 'H', color: '#004c8f', description: 'Seamless trading with HDFC ecosystem', features: ['Net Banking', 'Mobile Trading', 'Portfolio Track'] },
+  { id: 'kotak', name: 'Kotak Securities', logo: 'KS', color: '#ed1c24', description: 'Professional tools for active traders', features: ['KEAT', 'Options Tools', 'Custom Strategies'] },
+  { id: 'axis', name: 'Axis Direct', logo: 'AX', color: '#97144d', description: 'Investment made simple and smart', features: ['Easy Investing', 'Stock SIP', 'Tax Planning'] },
+  { id: 'iifl', name: 'IIFL Securities', logo: 'II', color: '#f7941d', description: 'Research-driven wealth management', features: ['Premium Research', 'Portfolio Review', 'Wealth Advisory'] },
 ];
 
 export function BrokerPage() {
-  const [connectedBrokers, setConnectedBrokers] = useState(brokers);
-  const [connecting, setConnecting] = useState<string | null>(null);
+  const [connectedBrokers, setConnectedBrokers] = useState<Broker[]>([
+    { id: 'kite', name: 'Zerodha Kite', logo: 'K', color: '#5861c7', status: 'connected', accountType: 'Equity + F&O', margins: { available: 245680, used: 125000, total: 370680 }, lastSync: new Date(Date.now() - 5 * 60000) },
+    { id: 'upstox', name: 'Upstox Pro', logo: 'U', color: '#00a651', status: 'connected', accountType: 'Equity', margins: { available: 125000, used: 45000, total: 170000 }, lastSync: new Date(Date.now() - 10 * 60000) },
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [connectingBroker, setConnectingBroker] = useState<string | null>(null);
 
-  const handleConnect = (brokerId: string) => {
-    setConnecting(brokerId);
-    setTimeout(() => {
-      setConnectedBrokers(prev => prev.map(b => b.id === brokerId ? { ...b, status: 'connected' as const, lastSync: new Date() } : b));
-      setConnecting(null);
-    }, 2000);
+  const connectedIds = connectedBrokers.map(b => b.id);
+
+  const handleConnect = async (brokerId: string) => {
+    setConnectingBroker(brokerId);
+    
+    const brokerInfo = allBrokers.find(b => b.id === brokerId);
+    if (!brokerInfo) return;
+
+    await new Promise(r => setTimeout(r, 2000));
+
+    const newBroker: Broker = {
+      id: brokerId,
+      name: brokerInfo.name,
+      logo: brokerInfo.logo,
+      color: brokerInfo.color,
+      status: 'connected',
+      accountType: 'Equity + F&O',
+      margins: { available: 100000, used: 0, total: 100000 },
+      lastSync: new Date(),
+    };
+
+    setConnectedBrokers(prev => [...prev, newBroker]);
+    setConnectingBroker(null);
+    setShowAddModal(false);
   };
 
   const handleDisconnect = (brokerId: string) => {
-    setConnectedBrokers(prev => prev.map(b => b.id === brokerId ? { ...b, status: 'disconnected' as const } : b));
+    setConnectedBrokers(prev => prev.filter(b => b.id !== brokerId));
   };
+
+  const handleSync = (brokerId: string) => {
+    setConnectedBrokers(prev => prev.map(b => 
+      b.id === brokerId ? { ...b, lastSync: new Date() } : b
+    ));
+  };
+
+  const totalAvailable = connectedBrokers.reduce((sum, b) => sum + b.margins.available, 0);
+  const totalUsed = connectedBrokers.reduce((sum, b) => sum + b.margins.used, 0);
+  const totalMargin = connectedBrokers.reduce((sum, b) => sum + b.margins.total, 0);
 
   return (
     <div className="broker-page">
       <div className="page-header">
         <h1>Broker Integration</h1>
+        <button className="add-btn" onClick={() => setShowAddModal(true)}>
+          <Plus size={16} />
+          Add Broker
+        </button>
       </div>
 
+      {connectedBrokers.length > 0 && (
+        <div className="margin-overview">
+          <div className="margin-card">
+            <span className="margin-label">Total Available</span>
+            <span className="margin-value">₹{totalAvailable.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="margin-card">
+            <span className="margin-label">Total Used</span>
+            <span className="margin-value used">₹{totalUsed.toLocaleString('en-IN')}</span>
+          </div>
+          <div className="margin-card">
+            <span className="margin-label">Total Margin</span>
+            <span className="margin-value">₹{totalMargin.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+      )}
+
       <div className="connected-brokers">
-        <h2>Connected Accounts</h2>
-        <div className="brokers-list">
-          {connectedBrokers.map(broker => (
-            <div key={broker.id} className="broker-card connected">
-              <div className="broker-logo">{broker.logo}</div>
-              <div className="broker-info">
-                <div className="broker-header">
-                  <span className="broker-name">{broker.name}</span>
-                  <span className={`status-indicator ${broker.status}`}>
-                    {broker.status === 'connected' ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                    {broker.status === 'connected' ? 'Connected' : 'Disconnected'}
-                  </span>
-                </div>
-                <span className="account-type">{broker.accountType}</span>
-                {broker.status === 'connected' && (
-                  <div className="margins">
-                    <div className="margin-item">
-                      <span className="label">Available</span>
-                      <span className="value positive">₹{broker.margins.available.toLocaleString('en-IN')}</span>
+        <h2>Connected Accounts ({connectedBrokers.length})</h2>
+        {connectedBrokers.length === 0 ? (
+          <div className="empty-brokers">
+            <Link2 size={48} />
+            <h3>No Brokers Connected</h3>
+            <p>Connect a broker to start trading with real-time execution</p>
+            <button className="add-btn" onClick={() => setShowAddModal(true)}>
+              <Plus size={16} />
+              Connect Broker
+            </button>
+          </div>
+        ) : (
+          <div className="brokers-grid">
+            {connectedBrokers.map(broker => (
+              <div key={broker.id} className="broker-card connected">
+                <div className="broker-logo" style={{ background: broker.color }}>{broker.logo}</div>
+                <div className="broker-info">
+                  <div className="broker-header">
+                    <span className="broker-name">{broker.name}</span>
+                    <span className={`status-indicator ${broker.status}`}>
+                      {broker.status === 'connected' ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                      {broker.status === 'connected' ? 'Connected' : 'Disconnected'}
+                    </span>
+                  </div>
+                  <span className="account-type">{broker.accountType}</span>
+                  
+                  <div className="margin-bar">
+                    <div className="margin-progress">
+                      <div 
+                        className="margin-used" 
+                        style={{ width: `${(broker.margins.used / broker.margins.total) * 100}%` }}
+                      />
                     </div>
-                    <div className="margin-item">
-                      <span className="label">Used</span>
-                      <span className="value">₹{broker.margins.used.toLocaleString('en-IN')}</span>
+                    <div className="margin-labels">
+                      <span>Used: ₹{broker.margins.used.toLocaleString('en-IN')}</span>
+                      <span>Available: ₹{broker.margins.available.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
-                )}
-                <div className="broker-footer">
-                  <span className="last-sync">Last sync: {broker.lastSync.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
-                  <div className="broker-actions">
-                    {broker.status === 'connected' ? (
-                      <>
-                        <button className="action-btn sync"><RefreshCw size={14} /> Sync</button>
-                        <button className="action-btn disconnect" onClick={() => handleDisconnect(broker.id)}>Disconnect</button>
-                      </>
-                    ) : (
-                      <button className="action-btn connect" onClick={() => handleConnect(broker.id)} disabled={connecting === broker.id}>
-                        {connecting === broker.id ? 'Connecting...' : 'Connect'}
+
+                  <div className="broker-footer">
+                    <span className="last-sync">Synced: {broker.lastSync.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div className="broker-actions">
+                      <button className="action-btn sync" onClick={() => handleSync(broker.id)}>
+                        <RefreshCw size={14} /> Sync
                       </button>
-                    )}
+                      <button className="action-btn disconnect" onClick={() => handleDisconnect(broker.id)}>
+                        Disconnect
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="available-brokers">
-        <h2>Available Platforms</h2>
-        <div className="platforms-grid">
-          <div className="platform-card">
-            <div className="platform-header">
-              <div className="platform-logo kite">K</div>
-              <div className="platform-badge connected"><CheckCircle size={12} /> Connected</div>
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Connect Broker</h3>
+              <button className="close-btn" onClick={() => setShowAddModal(false)}>X</button>
             </div>
-            <h3>Zerodha Kite</h3>
-            <p>Industry's most advanced trading platform with minimal latency</p>
-            <div className="platform-features">
-              <span><Zap size={12} /> Fast execution</span>
-              <span><Shield size={12} /> Secure API</span>
+            <div className="modal-body">
+              <p className="modal-subtitle">Select a broker platform to connect with your account</p>
+              <div className="available-brokers-list">
+                {allBrokers.map(broker => {
+                  const isConnected = connectedIds.includes(broker.id);
+                  const isConnecting = connectingBroker === broker.id;
+                  return (
+                    <div key={broker.id} className={`broker-option ${isConnected ? 'connected' : ''}`}>
+                      <div className="broker-option-logo" style={{ background: broker.color }}>{broker.logo}</div>
+                      <div className="broker-option-info">
+                        <span className="broker-option-name">{broker.name}</span>
+                        <span className="broker-option-desc">{broker.description}</span>
+                        <div className="broker-features">
+                          {broker.features.map(f => <span key={f} className="feature-tag">{f}</span>)}
+                        </div>
+                      </div>
+                      <button 
+                        className={`connect-btn ${isConnected ? 'connected' : ''}`}
+                        onClick={() => !isConnected && handleConnect(broker.id)}
+                        disabled={isConnected || isConnecting}
+                      >
+                        {isConnecting ? (
+                          <>
+                            <Loader2 size={14} className="spinner" /> Connecting...
+                          </>
+                        ) : isConnected ? (
+                          <>
+                            <CheckCircle size={14} /> Connected
+                          </>
+                        ) : (
+                          <>
+                            <ExternalLink size={14} /> Connect
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <button className="platform-btn connected">Manage</button>
-          </div>
-
-          <div className="platform-card">
-            <div className="platform-header">
-              <div className="platform-logo upstox">U</div>
-              <div className="platform-badge connected"><CheckCircle size={12} /> Connected</div>
-            </div>
-            <h3>Upstox Pro</h3>
-            <p>Powerful trading platform with advanced charting tools</p>
-            <div className="platform-features">
-              <span><Zap size={12} /> Low brokerage</span>
-              <span><Shield size={12} /> 2FA enabled</span>
-            </div>
-            <button className="platform-btn connected">Manage</button>
-          </div>
-
-          <div className="platform-card disabled">
-            <div className="platform-header">
-              <div className="platform-logo angel">A</div>
-              <div className="platform-badge">Coming Soon</div>
-            </div>
-            <h3>Angel SmartAPI</h3>
-            <p>Integration with Angel Broking platform</p>
-            <div className="platform-features">
-              <span><Zap size={12} /> Advanced tools</span>
-              <span><Shield size={12} /> Encrypted</span>
-            </div>
-            <button className="platform-btn" disabled>Coming Soon</button>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="integration-guide">
-        <h2>How It Works</h2>
+        <h2>How Broker Integration Works</h2>
         <div className="steps">
           <div className="step">
-            <div className="step-number">1</div>
+            <div className="step-icon"><Link2 size={20} /></div>
             <div className="step-content">
-              <h4>Connect Your Broker</h4>
-              <p>Securely link your trading account using OAuth authentication</p>
+              <h4>1. Connect Your Broker</h4>
+              <p>Link your trading account securely using OAuth/API keys</p>
             </div>
           </div>
           <div className="step">
-            <div className="step-number">2</div>
+            <div className="step-icon"><Zap size={20} /></div>
             <div className="step-content">
-              <h4>Receive Signals</h4>
+              <h4>2. Receive Signals</h4>
               <p>Get real-time buy/sell signals based on technical analysis</p>
             </div>
           </div>
           <div className="step">
-            <div className="step-number">3</div>
+            <div className="step-icon"><Shield size={20} /></div>
             <div className="step-content">
-              <h4>Execute Trades</h4>
+              <h4>3. Execute Trades</h4>
               <p>One-click execution with pre-set entry, target, and stoploss</p>
             </div>
           </div>

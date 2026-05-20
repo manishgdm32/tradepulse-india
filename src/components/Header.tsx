@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Bell, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 interface HeaderProps {
@@ -9,8 +10,13 @@ interface HeaderProps {
 
 export function Header({ onNotificationClick, notificationCount }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, logout } = useAuth();
   const now = new Date();
   const marketOpen = now.getHours() >= 9 && now.getHours() < 15 && now.getDay() >= 1 && now.getDay() <= 5;
+
+  const initials = user?.name 
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
   return (
     <header className="header">
@@ -44,18 +50,21 @@ export function Header({ onNotificationClick, notificationCount }: HeaderProps) 
 
         <div className="user-menu-container">
           <button className="user-btn" onClick={() => setShowUserMenu(!showUserMenu)}>
-            <div className="user-avatar">VP</div>
-            <span className="user-name">Vikram Patel</span>
+            <div className="user-avatar">{initials}</div>
+            <span className="user-name">{user?.name || 'User'}</span>
             <ChevronDown size={14} />
           </button>
 
           {showUserMenu && (
             <div className="user-menu">
-              <button className="menu-item">
+              <div className="user-info">
+                <span className="user-email">{user?.email}</span>
+              </div>
+              <button className="menu-item" onClick={() => window.location.hash = '#settings'}>
                 <Settings size={16} />
                 <span>Settings</span>
               </button>
-              <button className="menu-item logout">
+              <button className="menu-item logout" onClick={logout}>
                 <LogOut size={16} />
                 <span>Logout</span>
               </button>

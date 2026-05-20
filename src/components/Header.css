@@ -159,13 +159,24 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 160px;
+  min-width: 200px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   padding: 4px;
   z-index: 200;
+}
+
+.user-info {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.user-email {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .menu-item {
