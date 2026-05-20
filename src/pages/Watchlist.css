@@ -1,0 +1,257 @@
+.watchlist-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+}
+
+.add-btn:hover {
+  background: var(--accent-hover);
+}
+
+.watchlist-table {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.table-body {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.table-row {
+  display: flex;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition);
+}
+
+.table-row:hover {
+  background: var(--bg-tertiary);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.col {
+  display: flex;
+  align-items: center;
+}
+
+.symbol-col {
+  flex: 2;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.price-col {
+  flex: 1;
+  justify-content: flex-end;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.change-col {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.volume-col {
+  flex: 0.8;
+  justify-content: flex-end;
+  color: var(--text-secondary);
+}
+
+.action-col {
+  flex: 0.4;
+  justify-content: center;
+}
+
+.symbol-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.symbol-name {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.positive {
+  color: var(--bullish);
+}
+
+.negative {
+  color: var(--bearish);
+}
+
+.remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all var(--transition);
+}
+
+.table-row:hover .remove-btn {
+  opacity: 1;
+}
+
+.remove-btn:hover {
+  background: var(--bearish-bg);
+  color: var(--bearish);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 16px 20px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.search-input input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.search-input input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input svg {
+  color: var(--text-muted);
+}
+
+.stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.stock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.stock-item:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stock-symbol {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stock-name {
+  font-size: 11px;
+  color: var(--text-muted);
+}

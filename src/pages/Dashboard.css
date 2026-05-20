@@ -1,0 +1,346 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.market-indices {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.index-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.index-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.index-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.trend-icon.up { color: var(--bullish); }
+.trend-icon.down { color: var(--bearish); }
+
+.index-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.index-change {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.index-change.up { color: var(--bullish); }
+.index-change.down { color: var(--bearish); }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title .title-icon {
+  color: var(--warning);
+}
+
+.section-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.signal-count {
+  background: var(--bullish);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.signals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.empty-signals {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+}
+
+.empty-signals h3 {
+  font-size: 16px;
+  margin-top: 16px;
+  color: var(--text-secondary);
+}
+
+.empty-signals p {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.signal-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border-left: 3px solid var(--border);
+}
+
+.signal-card.buy { border-left-color: var(--bullish); }
+.signal-card.sell { border-left-color: var(--bearish); }
+
+.signal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.signal-symbol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.symbol-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.action-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.action-badge.buy {
+  background: var(--bullish-bg);
+  color: var(--bullish);
+}
+
+.action-badge.sell {
+  background: var(--bearish-bg);
+  color: var(--bearish);
+}
+
+.signal-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.signal-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  background: var(--accent-glow);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.confidence {
+  display: flex;
+  gap: 1px;
+}
+
+.star {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.star.filled {
+  color: var(--warning);
+}
+
+.signal-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.price-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.price-row.target .price-value { color: var(--bullish); }
+.price-row.stoploss .price-value { color: var(--bearish); }
+
+.signal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.time-remaining {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.signal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dismiss-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+
+.dismiss-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.execute-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.execute-btn.buy {
+  background: var(--bullish);
+  color: white;
+}
+
+.execute-btn.buy:hover {
+  background: #2ea043;
+}
+
+.execute-btn.sell {
+  background: var(--bearish);
+  color: white;
+}
+
+.execute-btn.sell:hover {
+  background: #da3633;
+}
+
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon.bullish {
+  background: var(--bullish-bg);
+  color: var(--bullish);
+}
+
+.stat-icon.neutral {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.stat-value.positive { color: var(--bullish); }
+.stat-value.negative { color: var(--bearish); }
