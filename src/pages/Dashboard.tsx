@@ -1,4 +1,5 @@
-import { TrendingUp, TrendingDown, Zap, Clock, Target, X } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, Zap, Clock, Target, X, CheckCircle, Loader2 } from 'lucide-react';
 import type { MarketIndex, Signal } from '../types';
 import './Dashboard.css';
 
@@ -99,57 +100,145 @@ function IndexCard({ index }: { index: MarketIndex }) {
   );
 }
 
-function SignalCard({ signal, onExecute, onDismiss }: { signal: Signal; onExecute: () => void; onDismiss: () => void }) {
+interface SignalCardProps {
+  signal: Signal;
+  onExecute: () => void;
+  onDismiss: () => void;
+}
+
+function SignalCard({ signal, onExecute, onDismiss }: SignalCardProps) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [executing, setExecuting] = useState(false);
+  const [executed, setExecuted] = useState(false);
   const now = Date.now();
   const expiresIn = Math.max(0, signal.validUntil.getTime() - now);
   const minutesLeft = Math.floor(expiresIn / 60000);
 
-  return (
-    <div className={`signal-card ${signal.action.toLowerCase()}`}>
-      <div className="signal-header">
-        <div className="signal-symbol">
-          <span className="symbol-text">{signal.symbol}</span>
-          <span className={`action-badge ${signal.action.toLowerCase()}`}>{signal.action}</span>
+  const handleExecute = async () => {
+    setExecuting(true);
+    await new Promise(r => setTimeout(r, 1500));
+    setExecuting(false);
+    setExecuted(true);
+    onExecute();
+    setTimeout(() => setShowConfirm(false), 1500);
+  };
+
+  if (executed) {
+    return (
+      <div className={`signal-card ${signal.action.toLowerCase()} executed`}>
+        <div className="executed-overlay">
+          <CheckCircle size={32} />
+          <span>Order Placed!</span>
         </div>
-        <div className="signal-meta">
-          <span className="signal-type">{signal.type}</span>
-          <div className="confidence">
-            {[...Array(5)].map((_, i) => (
-              <span key={i} className={`star ${i < signal.confidence ? 'filled' : ''}`}>★</span>
-            ))}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className={`signal-card ${signal.action.toLowerCase()}`}>
+        <div className="signal-header">
+          <div className="signal-symbol">
+            <span className="symbol-text">{signal.symbol}</span>
+            <span className={`action-badge ${signal.action.toLowerCase()}`}>{signal.action}</span>
+          </div>
+          <div className="signal-meta">
+            <span className="signal-type">{signal.type}</span>
+            <div className="confidence">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className={`star ${i < signal.confidence ? 'filled' : ''}`}>★</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="signal-prices">
+          <div className="price-row">
+            <span className="price-label">Entry</span>
+            <span className="price-value mono">{signal.entryPrice.toFixed(2)}</span>
+          </div>
+          <div className="price-row target">
+            <span className="price-label">Target</span>
+            <span className="price-value mono">{signal.targetPrice.toFixed(2)}</span>
+          </div>
+          <div className="price-row stoploss">
+            <span className="price-label">Stoploss</span>
+            <span className="price-value mono">{signal.stopLoss.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="signal-footer">
+          <div className="time-remaining">
+            <Clock size={12} />
+            <span>{minutesLeft}m left</span>
+          </div>
+          <div className="signal-actions">
+            <button className="dismiss-btn" onClick={onDismiss}>
+              <X size={14} />
+            </button>
+            <button className={`execute-btn ${signal.action.toLowerCase()}`} onClick={() => setShowConfirm(true)}>
+              Execute {signal.action}
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="signal-prices">
-        <div className="price-row">
-          <span className="price-label">Entry</span>
-          <span className="price-value mono">{signal.entryPrice.toFixed(2)}</span>
+      {showConfirm && (
+        <div className="execute-modal-overlay" onClick={() => !executing && setShowConfirm(false)}>
+          <div className="execute-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Confirm Order</h3>
+              {!executing && (
+                <button className="close-btn" onClick={() => setShowConfirm(false)}>
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <div className="modal-body">
+              <div className="order-details">
+                <div className="detail-row">
+                  <span>Symbol</span>
+                  <strong>{signal.symbol}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Action</span>
+                  <strong className={signal.action.toLowerCase()}>{signal.action}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Entry Price</span>
+                  <strong className="mono">₹{signal.entryPrice.toFixed(2)}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Target</span>
+                  <strong className="mono profit">₹{signal.targetPrice.toFixed(2)}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Stoploss</span>
+                  <strong className="mono loss">₹{signal.stopLoss.toFixed(2)}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Quantity</span>
+                  <strong className="mono">100</strong>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowConfirm(false)} disabled={executing}>
+                Cancel
+              </button>
+              <button className={`confirm-btn ${signal.action.toLowerCase()}`} onClick={handleExecute} disabled={executing}>
+                {executing ? (
+                  <>
+                    <Loader2 size={16} className="spinner" /> Placing Order...
+                  </>
+                ) : (
+                  `Confirm ${signal.action}`
+                )}
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="price-row target">
-          <span className="price-label">Target</span>
-          <span className="price-value mono">{signal.targetPrice.toFixed(2)}</span>
-        </div>
-        <div className="price-row stoploss">
-          <span className="price-label">Stoploss</span>
-          <span className="price-value mono">{signal.stopLoss.toFixed(2)}</span>
-        </div>
-      </div>
-
-      <div className="signal-footer">
-        <div className="time-remaining">
-          <Clock size={12} />
-          <span>{minutesLeft}m left</span>
-        </div>
-        <div className="signal-actions">
-          <button className="dismiss-btn" onClick={onDismiss}>
-            <X size={14} />
-          </button>
-          <button className={`execute-btn ${signal.action.toLowerCase()}`} onClick={onExecute}>
-            Execute {signal.action}
-          </button>
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

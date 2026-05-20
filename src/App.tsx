@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './pages/Dashboard';
@@ -9,6 +9,8 @@ import { BrokerPage } from './pages/BrokerPage';
 import { Settings } from './pages/Settings';
 import { Notifications } from './components/Notifications';
 import { StatusBar } from './components/StatusBar';
+import { LoginPage, AdminDashboard } from './components/Auth';
+import { useAuth } from './context/AuthContext';
 import { useMarketData } from './hooks/useMarketData';
 import { useSignals } from './hooks/useSignals';
 import { useNotifications } from './hooks/useNotifications';
@@ -17,7 +19,7 @@ import './App.css';
 
 type Page = 'dashboard' | 'watchlist' | 'signals' | 'orders' | 'broker' | 'settings';
 
-function App() {
+function TradingApp() {
   const [activePage, setActivePage] = useState<Page>('dashboard');
   const [showNotifications, setShowNotifications] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
@@ -33,14 +35,9 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleNotificationClick = useCallback((notification: Notification) => {
+  const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
-    if (notification.actionUrl === '/signals') {
-      setActivePage('signals');
-    } else if (notification.actionUrl === '/orders') {
-      setActivePage('orders');
-    }
-  }, [markAsRead]);
+  };
 
   const renderPage = () => {
     switch (activePage) {
@@ -116,4 +113,16 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  const { user, isAdmin } = useAuth();
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  if (isAdmin) {
+    return <AdminDashboard />;
+  }
+
+  return <TradingApp />;
+}
